@@ -5,8 +5,52 @@
 </head>
 
 <body>
+    <script>
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(currentposition, positionerr);
+        } else {
+            console.log("browser doesn't support geolocation");
+        }
+
+        function positionerr(err){
+            console.log(err);
+            document.getElementById("position").innerHTML = "Error";
+
+        }
+
+        function currentposition(position) { // timer
+            console.log(position);
+            var dining_hall = "John Jay";
+            // document.getElementById("position").innerHTML = "Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude;
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/location");
+            xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+            const body = JSON.stringify({
+                dining_hall: dining_hall
+            });
+            xhr.onload = () => {
+                if (xhr.readyState == 4 && xhr.status == 201) {
+                    console.log(JSON.parse(xhr.responseText));
+                } else {
+                    console.log("Error:", xhr.status);
+                }
+            };
+            xhr.send(body);
+        }
+    </script>
 
     hello world
+    <div id="position">
+
+    </div>
+
+    <table>
+        <% for (var dining_hall in food_data) { %>
+        <tr>
+          <td> <%- dining_hall %> <br> <%- food_data[dining_hall].length %>  </td>
+        </tr>
+        <% } %>
+    </table> 
 
 </body>
 
