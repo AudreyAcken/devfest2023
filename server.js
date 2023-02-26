@@ -13,22 +13,82 @@ app.use(cookieParser());
 // set view engine
 app.set("view engine", "ejs");
 
+const path = require("path");
+app.use('/public', express.static(path.join(__dirname, 'public')));
+
 var food_data = {"Ferris": [], "John Jay": [], "JJ": []};
 var users = {};
+
+// for dining hall testing
+fs.readFile('data/accounts.json', 'utf8', function (err, data) {
+    var obj = JSON.parse(data);
+    for (user in obj) {
+        if ("demo-location" in obj[user]) {
+            food_data[obj[user]["demo-location"]].push(user);
+        }
+    }
+    console.log(food_data);
+});
 
 app.get("/", (req, res) => {
     res.render('login');
  });
 
-app.post("/location", (req, res) => {
+app.post("/toggle", (req, res) => {
     var username = req.cookies["mealmate-user"];
-    if ((username in users) && (users[username].toggle == true) && (req.body.dining_hall in food_data)){
-        food_data[req.body.dining_hall].push(username);
-        var location = req.body.dining_hall;
-        console.log(username, location);
-        console.log(food_data);
+    var toggle = "";
+    if ("toggle" in req.body) {
+        toggle = req.body.toggle;
+    }
+    if (username in users) {
+        users[username].toggle = toggle;
+        if ((!toggle) && ("dining_hall" in users[username])) {
+            const index = food_data[users[username]["dining_hall"]].indexOf(username);
+            food_data[users[username]["dining_hall"]].splice(index, 1);
+            delete(users[username]["dining_hall"]);
+        } 
     }
     res.status(204).send();
+})
+
+app.post("/location", (req, res) => {
+    var username = req.cookies["mealmate-user"];
+    var local_dininghall = "";
+    if ("dining_hall" in req.body) {
+        local_dininghall = req.body.dining_hall;
+    }
+    if ((username in users) && (users[username].toggle == true)) {
+        // stays
+        if (("dining_hall" in users[username]) && (local_dininghall in food_data) && (users[username]["dining_hall"] == local_dininghall)) {
+            ;
+        }
+        
+        // never there
+        else if (!("dining_hall" in users[username]) && !(local_dininghall in food_data)) {
+            ;
+        }
+
+        else {
+            // leaving
+            if ("dining_hall" in users[username]) {
+                const index = food_data[users[username]["dining_hall"]].indexOf(username);
+                food_data[users[username]["dining_hall"]].splice(index, 1);
+                delete(users[username]["dining_hall"]);
+            } 
+
+            // entering
+            if (local_dininghall in food_data) {
+                food_data[req.body.dining_hall].push(username); 
+                users[username]["dining_hall"] = req.body.dining_hall;
+            }
+        } 
+        console.log(food_data);
+    }
+    var counts = {}
+    for (location in food_data){
+        counts[location] = food_data[location].length;
+    }
+    res.json(counts);
 }); 
 
 app.post("/login", (req, res) => {

@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Title of the document</title>
+<title>Home</title>
+<link href="/public/style.css" rel="stylesheet" type="text/css">
+
 </head>
 
 <body>
@@ -39,17 +41,62 @@
         }
     </script>
 
-    hello world
+    <script>
+        function updateTable() {
+            var dining_hall = "John Jay";
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/location");
+            xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+            const body = JSON.stringify({
+                dining_hall: dining_hall
+            });
+            xhr.onload = () => {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    console.log(JSON.parse(xhr.responseText));
+                    var dining_halls = JSON.parse(xhr.responseText);
+                    var tablehtml = "";
+                    for (dining in dining_halls) {
+                        tablehtml += "<tr><td>";
+                        tablehtml += dining;
+                        tablehtml += "<br>" + dining_halls[dining];
+                        tablehtml += "</td></tr>";
+                    }
+                    document.getElementById("main_table").innerHTML = tablehtml;
+                } else {
+                    console.log("Error:", xhr.status);
+                }
+            };
+            xhr.send(body);
+
+            setTimeout(updateTable, 1.0*1000);
+        }
+
+        window.onload = updateTable();
+
+        function togglecheck() {
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "/toggle");
+            xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+            const body = JSON.stringify({
+                toggle: document.getElementById("swipe").checked
+            });
+            xhr.onload = () => {
+                
+            };
+            xhr.send(body);
+        }
+    </script>
+    mealmate
     <div id="position">
 
     </div>
 
-    <table>
-        <% for (var dining_hall in food_data) { %>
-        <tr>
-          <td> <%- dining_hall %> <br> <%- food_data[dining_hall].length %>  </td>
-        </tr>
-        <% } %>
+    <label class="switch">
+        <input id = "swipe" type="checkbox" onclick="togglecheck()">
+        <span class="slider round"></span>
+    </label>
+
+    <table id = "main_table">
     </table> 
 
 </body>
