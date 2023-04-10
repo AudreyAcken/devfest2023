@@ -21,3 +21,7 @@ mealmate is an app -
 The demo is built through html/css and node.js - I used geolocation data to track the current position of the user and map their location to a dining hall (or no dining hall). This tracking is put through a timed loop so we can detect in real-time when a user enters or leaves the dining hall. After someone enters the dining hall, the corresponding number is updated.
 
 ## What's next for mealmate
+1. Finish building the app prototype
+2. Get the word out on campus and get adoption
+3. Test, gather feedback, improve
+3. We believe it can be expanded into a generalized match/connection app with more usage scenarios for finding people to do activities with - such as study groups, clubs, outings, rideshare, gym buddies…
